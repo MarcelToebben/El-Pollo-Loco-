@@ -1,7 +1,12 @@
 let canvas;
-let charakter = new Image();
+let ctx;
+let world =  new World();
 
 function init() {
     canvas = document.getElementById('canvas');
-    charakter.src = '../img/img_pollo_locco/img/2_character_pepe/2_walk/W-21.png'
+    ctx = canvas.getContext('2d');
+    
+    console.log('My Character is', world.character);
+
+    
 }
