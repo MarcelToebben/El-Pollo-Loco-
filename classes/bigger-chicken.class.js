@@ -1,12 +1,13 @@
-class Chicken extends MovableObject {
-    y = 365;
-    height = 80;
-    width = 70;
+class BiggerChicken extends MovableObject {
+    y = 335;
+    height = 110;
+    width = 80;
     canMove = false;
     imagesWalking = [
-        'img/enemies_chicken/chicken_normal/chicken_normal_walk/chicken_normal_walk_1.png',
-        'img/enemies_chicken/chicken_normal/chicken_normal_walk/chicken_normal_walk_2.png',
-        'img/enemies_chicken/chicken_normal/chicken_normal_walk/chicken_normal_walk_3.png'
+        'img/enemie_boss_chicken/enemie_boss_chicken_walk/enemie_boss_chicken_walk_1.png',
+        'img/enemie_boss_chicken/enemie_boss_chicken_walk/enemie_boss_chicken_walk_2.png',
+        'img/enemie_boss_chicken/enemie_boss_chicken_walk/enemie_boss_chicken_walk_3.png',
+        'img/enemie_boss_chicken/enemie_boss_chicken_walk/enemie_boss_chicken_walk_4.png'
     ];
     constructor() {
         super().loadImage(this.imagesWalking[0]);

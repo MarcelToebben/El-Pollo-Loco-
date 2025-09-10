@@ -1,14 +1,14 @@
-class Chicken extends MovableObject {
-    y = 365;
-    height = 80;
-    width = 70;
+class SmallChicken extends MovableObject {
+    y = 400;
+    height = 40;
+    width = 30;
     canMove = false;
     imagesWalking = [
-        'img/enemies_chicken/chicken_normal/chicken_normal_walk/chicken_normal_walk_1.png',
-        'img/enemies_chicken/chicken_normal/chicken_normal_walk/chicken_normal_walk_2.png',
-        'img/enemies_chicken/chicken_normal/chicken_normal_walk/chicken_normal_walk_3.png'
+        'img/enemies_chicken/chicken_small/chicken_small_walk/chicken_small_walk_1.png',
+        'img/enemies_chicken/chicken_small/chicken_small_walk/chicken_small_walk_2.png',
+        'img/enemies_chicken/chicken_small/chicken_small_walk/chicken_small_walk_3.png'
     ];
-    constructor() {
+      constructor() {
         super().loadImage(this.imagesWalking[0]);
         this.loadImages(this.imagesWalking);
         this.x = 500 + Math.random() * 6500;
@@ -24,7 +24,7 @@ class Chicken extends MovableObject {
             if (this.canMove) {
                 this.playAnimation(this.imagesWalking);
             }
-        }, 200);
+        }, 180);
     }
 
     startMoving() {

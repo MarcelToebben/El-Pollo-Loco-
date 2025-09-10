@@ -85,4 +85,16 @@ window.addEventListener("keyup", (e) => {
     }
 
     console.log(e);
+
+    window.addEventListener("keydown", (e) => {
+    if (e.keyCode == 39 || e.keyCode == 37 || e.keyCode == 68 || e.keyCode == 65) {
+        keyboard.right = e.keyCode == 39 || e.keyCode == 68;
+        keyboard.left  = e.keyCode == 37 || e.keyCode == 65;
+
+        world.level.enemies.forEach(enemy => {
+            if (enemy.startMoving) enemy.startMoving();
+        });
+    }
+});
+
 });
