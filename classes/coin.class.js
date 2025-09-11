@@ -1,24 +1,51 @@
 class Coin extends MovableObject {
-    y = 350;           // Höhe, an der die Coins sitzen sollen
-    height = 50;
-    width = 50;
+    width = 100;
+    height = 100;
+    collected = false;
+    currentImage = 0;
+    frameInterval = 500;
+    lastFrameTime = Date.now();
 
-    imagesCoin = [
-        'img/coins/coin_1.png',
-        'img/coins/coin_2.png'
+    images = [
+        'img/coin/coin_1.png',
+        'img/coin/coin_2.png'
     ];
 
-    constructor() {
-        // Erstes Bild laden
-        super().loadImage(this.imagesCoin[0]);
-        this.loadImages(this.imagesCoin);
+    constructor(x, y) {
+        super();
+        this.x = x;
+        this.y = y;
+        this.loadImages(this.images);
+        this.img = this.imageCache[this.images[0]];
+    }
 
-        // Zufällige X-Position im Level
-        this.x = 200 + Math.random() * 6000; // anpassen an Levelgröße
+    animate() {
+        if (this.collected) return;
 
-        // Animation: alle 300ms zwischen coin_1 und coin_2 wechseln
-        setInterval(() => {
-            this.playAnimation(this.imagesCoin);
-        }, 300);
+        let now = Date.now();
+        if (now - this.lastFrameTime > this.frameInterval) {
+            this.currentImage = (this.currentImage + 1) % this.images.length;
+            this.img = this.imageCache[this.images[this.currentImage]];
+            this.lastFrameTime = now;
+        }
+    }
+
+    collect() {
+        this.collected = true;
+    }
+
+    isTouchedBy(character) {
+        // kleine "Hitbox" für Coin nur in der Mitte
+        const coinTop = this.y + this.height / 4;
+        const coinBottom = this.y + this.height * 3 / 4;
+        const coinLeft = this.x + this.width / 4;
+        const coinRight = this.x + this.width * 3 / 4;
+
+        const charTop = character.y;
+        const charBottom = character.y + character.height;
+        const charLeft = character.x;
+        const charRight = character.x + character.width;
+
+        return !(charRight < coinLeft || charLeft > coinRight || charBottom < coinTop || charTop > coinBottom);
     }
 }

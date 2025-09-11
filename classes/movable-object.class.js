@@ -9,7 +9,7 @@ class MovableObject {
     speed = 0.15;
     otherDirection = false;
     speedY = 0;
-    acceleration = 2.5;
+    acceleration = 1.5;
     energy = 100;
 
     applyGravity() {
@@ -51,9 +51,9 @@ class MovableObject {
 
     isColliding(mo) {
         return this.x + this.width > mo.x &&
-        this.y + this.height > mo.y &&
-        this.x < mo.x &&
-        this.y < mo.y + mo.height;
+            this.y + this.height > mo.y &&
+            this.x < mo.x &&
+            this.y < mo.y + mo.height;
     }
 
     hit() {
@@ -76,7 +76,7 @@ class MovableObject {
     }
 
     playAnimation(images) {
-        let i = this.currentImage % this.imagesWalking.length;
+        let i = this.currentImage % images.length;
         let path = images[i];
         this.img = this.imageCache[path];
         this.currentImage++;
@@ -93,6 +93,6 @@ class MovableObject {
     }
 
     jump() {
-        this.speedY = 30;
+        this.speedY = 21;
     }
 } 

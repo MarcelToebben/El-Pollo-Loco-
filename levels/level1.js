@@ -1,3 +1,18 @@
+const coins = [];
+
+for (let i = 0; i < 10; i++) {
+    const x = Math.random() * 7000; 
+    const y = 150;               
+    coins.push(new Coin(x, y));
+}
+
+// Münzen für Jump
+for (let i = 0; i < 10; i++) {
+    const x = Math.random() * 7000;
+    const y = 80 + Math.random() * 50;
+    coins.push(new Coin(x, y));
+}
+
 const level1 = new Level(
     [
         new Chicken(),
@@ -103,3 +118,5 @@ const level1 = new Level(
         new BackgroundObject('img/background/background_layers/background_first_layer/background_first_layer_1.png', 720 * 10),
     ],
 );
+
+level1.coins = coins;

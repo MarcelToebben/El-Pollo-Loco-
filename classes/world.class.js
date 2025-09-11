@@ -20,35 +20,56 @@ class World {
     }
 
     checkCollisions() {
-        setInterval(() => {
-            this.level.enemies.forEach((enemy) => {
-                if(this.character.isColliding(enemy)) {
-                    this.character.hit();
-                    console.log('Collision with Character, energy', this.character.energy);
-                }
-            });
-        }, 200);
-    }
+    setInterval(() => {
+        this.level.enemies.forEach((enemy) => {
+            if (this.character.isColliding(enemy)) {
+                this.character.hit();
+                console.log('Collision with Character, energy', this.character.energy);
+            }
+        });
 
-    draw() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.translate(this.camera_x, 0);
-        this.addObjectsToMap(this.level.backgroundObjects);
-        this.addToMap(this.character);
-        this.addObjectsToMap(this.level.clouds);
-        this.addObjectsToMap(this.level.enemies);
-        this.ctx.translate(-this.camera_x, 0);
-        let self = this;
-        requestAnimationFrame(function () {
-            self.draw();
+        this.level.coins.forEach(coin => {
+            if (!coin.collected && this.character.isColliding(coin)) {
+                coin.collect();
+            }
+        });
+    }, 50);
+}
+
+
+
+   draw() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.translate(this.camera_x, 0);
+
+    this.addObjectsToMap(this.level.backgroundObjects);
+    this.addToMap(this.character);
+    this.addObjectsToMap(this.level.clouds);
+    this.addObjectsToMap(this.level.enemies);
+
+    if (this.level.coins) {
+        this.level.coins.forEach(coin => {
+            if (!coin.collected) {
+                coin.animate();
+                this.addToMap(coin);
+            }
         });
     }
+
+    this.ctx.translate(-this.camera_x, 0);
+
+    requestAnimationFrame(() => this.draw());
+}
 
     addObjectsToMap(objects) {
         objects.forEach(o => {
+            if (o instanceof Coin) {
+                o.animate();
+            }
             this.addToMap(o);
         });
     }
+
 
     addToMap(mo) {
         if (mo.otherDirection) {
