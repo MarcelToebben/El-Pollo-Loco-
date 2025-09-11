@@ -43,8 +43,9 @@ window.addEventListener("keydown", (e) => {
     }
 
     if (e.keyCode == 32) {
-        keyboard.space = true;
+        keyboard.up = true;
     }
+
 });
 
 window.addEventListener("keyup", (e) => {
@@ -81,7 +82,7 @@ window.addEventListener("keyup", (e) => {
     }
 
     if (e.keyCode == 32) {
-        keyboard.space = false;
+        keyboard.up = false;
     }
 
     console.log(e);

@@ -40,7 +40,6 @@ const level1 = new Level(
         new Cloud(),
         new Cloud(),
         new Cloud()
-        
     ],
     [
         new BackgroundObject('img/background/background_layers/background_air.png', -720),
