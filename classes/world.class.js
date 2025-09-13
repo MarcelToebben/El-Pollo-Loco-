@@ -20,46 +20,59 @@ class World {
     }
 
     checkCollisions() {
-    setInterval(() => {
-        this.level.enemies.forEach((enemy) => {
-            if (this.character.isColliding(enemy)) {
-                this.character.hit();
-                console.log('Collision with Character, energy', this.character.energy);
-            }
-        });
+        setInterval(() => {
+            this.level.enemies.forEach((enemy) => {
+                if (this.character.isColliding(enemy)) {
+                    this.character.hit();
+                    console.log('Collision with Character, energy', this.character.energy);
+                }
+            });
 
-        this.level.coins.forEach(coin => {
-            if (!coin.collected && this.character.isColliding(coin)) {
-                coin.collect();
-            }
-        });
-    }, 50);
-}
+            this.level.coins.forEach(coin => {
+                if (!coin.collected && this.character.isColliding(coin)) {
+                    coin.collect();
+                }
+            });
 
+            this.level.bottles.forEach(bottle => {
+                if (!bottle.collected && this.character.isColliding(bottle)) {
+                    bottle.collect();
+                    this.character.bottles++;
+                }
+            });
 
-
-   draw() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.ctx.translate(this.camera_x, 0);
-
-    this.addObjectsToMap(this.level.backgroundObjects);
-    this.addToMap(this.character);
-    this.addObjectsToMap(this.level.clouds);
-    this.addObjectsToMap(this.level.enemies);
-
-    if (this.level.coins) {
-        this.level.coins.forEach(coin => {
-            if (!coin.collected) {
-                coin.animate();
-                this.addToMap(coin);
-            }
-        });
+        }, 50);
     }
 
-    this.ctx.translate(-this.camera_x, 0);
+    draw() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.translate(this.camera_x, 0);
 
-    requestAnimationFrame(() => this.draw());
-}
+        this.addObjectsToMap(this.level.backgroundObjects);
+        this.addToMap(this.character);
+        this.addObjectsToMap(this.level.clouds);
+        this.addObjectsToMap(this.level.enemies);
+
+        if (this.level.coins) {
+            this.level.coins.forEach(coin => {
+                if (!coin.collected) {
+                    coin.animate();
+                    this.addToMap(coin);
+                }
+            });
+
+            this.level.bottles.forEach(bottle => {
+                if (!bottle.collected) {
+                    this.addToMap(bottle);
+                }
+            });
+
+        }
+
+        this.ctx.translate(-this.camera_x, 0);
+
+        requestAnimationFrame(() => this.draw());
+    }
 
     addObjectsToMap(objects) {
         objects.forEach(o => {
