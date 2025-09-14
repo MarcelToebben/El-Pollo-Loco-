@@ -41,6 +41,42 @@ class World {
                 }
             });
 
+            this.character.thrownBottles.forEach((bottle, bottleIndex) => {
+                // Gegner-Treffer
+                this.level.enemies.forEach((enemy, enemyIndex) => {
+                    if (!bottle.hit && this.character.isColliding.call(bottle, enemy)) {
+                        bottle.hit = true;
+                        bottle.speedX = 0;
+                        bottle.gravity = 0;
+
+                        // normaler Gegner stirbt sofort
+                        if (!(enemy instanceof Endboss)) {
+                            this.level.enemies.splice(enemyIndex, 1);
+                        } else {
+                            // Bossgegner HP
+                            enemy.hitsTaken = (enemy.hitsTaken || 0) + 1;
+                            if (enemy.hitsTaken >= 25) {
+                                this.level.enemies.splice(enemyIndex, 1);
+                            }
+                        }
+                    }
+                });
+
+                // Bodenhit
+                if (bottle.y > 350 && !bottle.hit) {
+                    bottle.hit = true;
+                    bottle.speedX = 0;
+                    bottle.gravity = 0;
+                }
+
+                // Splash zu Ende → entfernen
+                if (bottle.hit && bottle.currentImage === bottle.imagesSplash.length - 1) {
+                    setTimeout(() => {
+                        this.character.thrownBottles.splice(bottleIndex, 1);
+                    }, 200);
+                }
+            });
+
         }, 50);
     }
 
@@ -66,6 +102,13 @@ class World {
                     this.addToMap(bottle);
                 }
             });
+
+            // Flaschen im Flug zeichnen
+            this.character.thrownBottles.forEach(bottle => {
+                bottle.update();
+                this.addToMap(bottle);
+            });
+
 
         }
 

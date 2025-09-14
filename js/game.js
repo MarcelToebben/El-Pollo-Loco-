@@ -36,6 +36,12 @@ window.addEventListener("keydown", (e) => {
     if (e.keyCode == 32) {
         keyboard.up = true;
     }
+    if (e.keyCode == 83) {
+        keyboard.throwKey = true;
+    }
+     if (e.keyCode == 40) {
+        keyboard.throwKey = true;
+    }
 });
 
 window.addEventListener("keyup", (e) => {
@@ -65,6 +71,12 @@ window.addEventListener("keyup", (e) => {
     }
     if (e.keyCode == 32) {
         keyboard.up = false;
+    }
+     if (e.keyCode == 83) {
+        keyboard.throwKey = false;
+    }
+     if (e.keyCode == 40) {
+        keyboard.throwKey = false;
     }
     console.log(e);
 

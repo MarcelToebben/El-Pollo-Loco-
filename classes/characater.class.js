@@ -5,19 +5,24 @@ class Character extends MovableObject {
     speed = 6;
     isHurt = false;
 
-    collisionOffset = {
-    top: 150,
-    bottom: 20,
-    left: 20,
-    right: 20
-};
+    bottles = 0;                  // eingesammelte Flaschen
+    thrownBottles = [];           // geworfene Flaschen
+    throwCooldown = 500;          // ms zwischen Würfen
+    lastThrowTime = 0;
 
-   isColliding(mo) {
-    return this.x + this.width - this.collisionOffset.right > mo.x + (mo.collisionOffset?.left || 0) &&
-           this.x + this.collisionOffset.left < mo.x + mo.width - (mo.collisionOffset?.right || 0) &&
-           this.y + this.height - this.collisionOffset.bottom > mo.y + (mo.collisionOffset?.top || 0) &&
-           this.y + this.collisionOffset.top < mo.y + mo.height - (mo.collisionOffset?.bottom || 0);
-}
+    collisionOffset = {
+        top: 150,
+        bottom: 20,
+        left: 20,
+        right: 20
+    };
+
+    isColliding(mo) {
+        return this.x + this.width - this.collisionOffset.right > mo.x + (mo.collisionOffset?.left || 0) &&
+            this.x + this.collisionOffset.left < mo.x + mo.width - (mo.collisionOffset?.right || 0) &&
+            this.y + this.height - this.collisionOffset.bottom > mo.y + (mo.collisionOffset?.top || 0) &&
+            this.y + this.collisionOffset.top < mo.y + mo.height - (mo.collisionOffset?.bottom || 0);
+    }
 
     lastMoveTime = Date.now();
     walkingAnimationSpeed = 80;
@@ -89,77 +94,111 @@ class Character extends MovableObject {
         this.loadImages(this.imagesIdleNormal);
         this.loadImages(this.imagesIdleLong);
         this.loadImages(this.imagesHit);
+        this.bottles = 5;
+        this.thrownBottles = [];
     }
+
+    // Methode in Character einfügen (z. B. unter dem constructor)
+    throwBottle() {
+        // Prüfen ob genügend Flaschen da sind und Cooldown abgelaufen ist
+        if (this.bottles > 0 && Date.now() - this.lastThrowTime > this.throwCooldown) {
+            this.bottles--;
+            this.lastThrowTime = Date.now();
+
+            // Richtung festlegen
+            const dir = this.otherDirection ? -1 : 1;
+
+            // Neue Flasche erzeugen und ins Array pushen
+            const bottle = new ThrowableBottle(
+                this.x + this.width / 2,
+                this.y + this.height / 2,
+                dir
+            );
+            this.thrownBottles.push(bottle);
+        }
+    }
+
+
 
     hit() {
-    if (!this.isHurt) {
-        this.isHurt = true;
-        this.energy -= 10;
-        this.currentImage = 0;
-        this.playAnimation(this.imagesHit);
-
-        setTimeout(() => {
-            this.isHurt = false;
+        if (!this.isHurt) {
+            this.isHurt = true;
+            this.energy -= 10;
             this.currentImage = 0;
-        }, this.imagesHit.length * 150);
-    }
-}
+            this.playAnimation(this.imagesHit);
 
-playAnimation(images, speed = 100) {
-    if (!this.lastAnimationTimePerAnimation) this.lastAnimationTimePerAnimation = {};
-    if (!this.lastAnimationTimePerAnimation[images]) this.lastAnimationTimePerAnimation[images] = Date.now();
-
-    if (Date.now() - this.lastAnimationTimePerAnimation[images] > speed) {
-        this.currentImage = (this.currentImage + 1) % images.length;
-        this.img = this.imageCache[images[this.currentImage]];
-        this.lastAnimationTimePerAnimation[images] = Date.now();
+            setTimeout(() => {
+                this.isHurt = false;
+                this.currentImage = 0;
+            }, this.imagesHit.length * 150);
+        }
     }
-}
+
+    playAnimation(images, speed = 100) {
+        if (!this.lastAnimationTimePerAnimation) this.lastAnimationTimePerAnimation = {};
+        if (!this.lastAnimationTimePerAnimation[images]) this.lastAnimationTimePerAnimation[images] = Date.now();
+
+        if (Date.now() - this.lastAnimationTimePerAnimation[images] > speed) {
+            this.currentImage = (this.currentImage + 1) % images.length;
+            this.img = this.imageCache[images[this.currentImage]];
+            this.lastAnimationTimePerAnimation[images] = Date.now();
+        }
+    }
 
     animate() {
-    setInterval(() => {
-        if (this.world.keyboard.right && this.x < this.world.level.level_end_x) {
-            this.moveRight();
-            this.lastMoveTime = Date.now();
-        }
-        if (this.world.keyboard.left && this.x > 0) {
-            this.moveLeft();
-            this.lastMoveTime = Date.now();
-        }
-        if (this.world.keyboard.up && !this.isAboveGround()) {
-            this.jump();
-            this.lastMoveTime = Date.now();
-        }
-        this.world.camera_x = -this.x + 100;
+        setInterval(() => {
+            if (this.world.keyboard.right && this.x < this.world.level.level_end_x) {
+                this.moveRight();
+                this.lastMoveTime = Date.now();
+            }
+            if (this.world.keyboard.left && this.x > 0) {
+                this.moveLeft();
+                this.lastMoveTime = Date.now();
+            }
+            if (this.world.keyboard.up && !this.isAboveGround()) {
+                this.jump();
+                this.lastMoveTime = Date.now();
+            }
 
-        if (this.isHurt) {
-            this.playAnimation(this.imagesHit, 300);
-            return;
-        }
-        if (this.isAboveGround()) {
-            this.playAnimation(this.imagesJumping, this.jumpingAnimationSpeed);
-            this.idleStage = 0;
-        }
-        else if (this.world.keyboard.right || this.world.keyboard.left) {
-            this.playAnimation(this.imagesWalking, this.walkingAnimationSpeed);
-            this.idleStage = 0;
-        }
-        else {
-            let idleTime = Date.now() - this.lastMoveTime;
-            if (idleTime > 8000) {
-                if (this.idleStage !== 2) this.currentImage = 0;
-                this.playAnimation(this.imagesIdleLong, this.idleANimationSpeed);
-                this.idleStage = 2;
-            } else if (idleTime > 3000) {
-                if (this.idleStage !== 1) this.currentImage = 0;
-                this.playAnimation(this.imagesIdleNormal, this.idleANimationSpeed);
-                this.idleStage = 1;
-            } else {
-                this.img = this.imageCache[this.imagesWalking[0]];
-                this.currentImage = 0;
+            // Werfen unabhängig vom Springen (↓ oder Wurftaste)
+            if (this.world.keyboard.down || this.world.keyboard.throwKey) {
+                this.throwBottle();
+            }
+
+            if (this.world.keyboard.throwKey) {
+                this.throwBottle();
+            }
+
+            this.world.camera_x = -this.x + 100;
+
+            if (this.isHurt) {
+                this.playAnimation(this.imagesHit, 300);
+                return;
+            }
+            if (this.isAboveGround()) {
+                this.playAnimation(this.imagesJumping, this.jumpingAnimationSpeed);
                 this.idleStage = 0;
             }
-        }
-    }, 1000 / 60);
-}
+            else if (this.world.keyboard.right || this.world.keyboard.left) {
+                this.playAnimation(this.imagesWalking, this.walkingAnimationSpeed);
+                this.idleStage = 0;
+            }
+            else {
+                let idleTime = Date.now() - this.lastMoveTime;
+                if (idleTime > 8000) {
+                    if (this.idleStage !== 2) this.currentImage = 0;
+                    this.playAnimation(this.imagesIdleLong, this.idleANimationSpeed);
+                    this.idleStage = 2;
+                } else if (idleTime > 3000) {
+                    if (this.idleStage !== 1) this.currentImage = 0;
+                    this.playAnimation(this.imagesIdleNormal, this.idleANimationSpeed);
+                    this.idleStage = 1;
+                } else {
+                    this.img = this.imageCache[this.imagesWalking[0]];
+                    this.currentImage = 0;
+                    this.idleStage = 0;
+                }
+            }
+        }, 1000 / 60);
+    }
 }
