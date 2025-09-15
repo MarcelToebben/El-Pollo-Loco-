@@ -13,16 +13,24 @@ class World {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
         this.keyboard = keyboard;
+
+        this.statusBars = new StatusBars(this);
+
         this.draw();
         this.setWorld();
         this.checkCollisions();
         setInterval(() => this.respawnBottles(), this.bottleRespawnInterval);
-
     }
+
 
     setWorld() {
         this.character.world = this;
+
+        this.level.enemies.forEach(enemy => {
+            enemy.world = this;
+        });
     }
+
 
     respawnBottles() {
         const groundBottles = this.level.bottles.filter(b => !b.collected);
@@ -67,9 +75,11 @@ class World {
 
             this.level.coins.forEach(coin => {
                 if (!coin.collected && this.character.isColliding(coin)) {
-                    coin.collect();
+                    coin.collected = true;      
+                    this.character.collectCoin(); 
                 }
             });
+
 
             this.level.bottles.forEach(bottle => {
                 if (!bottle.collected && this.character.isColliding(bottle)) {
@@ -152,6 +162,8 @@ class World {
 
         this.ctx.translate(-this.camera_x, 0);
 
+        this.statusBars.draw();
+
         requestAnimationFrame(() => this.draw());
     }
 
@@ -170,7 +182,7 @@ class World {
             this.flipImage(mo);
         }
         mo.draw(this.ctx);
-       // mo.drawBorder(this.ctx);
+        // mo.drawBorder(this.ctx);
         if (mo.otherDirection) {
             this.flipImageBack(mo);
         }

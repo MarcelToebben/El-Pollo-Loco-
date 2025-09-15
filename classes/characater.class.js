@@ -4,8 +4,12 @@ class Character extends MovableObject {
     width = 120;
     speed = 6;
     isHurt = false;
-
+    coins = 0;
+    maxCoins = 10;
     bottles = 0;
+    maxBottles = 10;
+    energy = 100;
+    maxLife = 100;
     thrownBottles = [];
     throwCooldown = 500;
     lastThrowTime = 0;
@@ -125,6 +129,13 @@ class Character extends MovableObject {
             this.thrownBottles.push(bottle);
         }
     }
+
+    collectCoin() {
+    if (this.coins < this.maxCoins) {
+        this.coins++;
+    }
+}
+
 
 
 
