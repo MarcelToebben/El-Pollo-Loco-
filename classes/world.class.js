@@ -4,6 +4,9 @@ class World {
     canvas;
     ctx;
     keyboard;
+    bottleRespawnInterval = 500;
+    maxGroundBottles = 5;
+
     camera_x = 0;
 
     constructor(canvas, keyboard) {
@@ -13,18 +16,52 @@ class World {
         this.draw();
         this.setWorld();
         this.checkCollisions();
+        setInterval(() => this.respawnBottles(), this.bottleRespawnInterval);
+
     }
 
     setWorld() {
         this.character.world = this;
     }
 
+    respawnBottles() {
+        const groundBottles = this.level.bottles.filter(b => !b.collected);
+
+        if (groundBottles.length === 0 && this.character.bottles < this.character.maxBottles) {
+            for (let i = 0; i < this.maxGroundBottles; i++) {
+                const x = 500 + i * 200 + Math.random() * 300;
+                const y = 360;
+                const newBottle = new Bottle(x, y);
+                newBottle.collected = false;
+                this.level.bottles.push(newBottle);
+            }
+        }
+    }
+
+
     checkCollisions() {
         setInterval(() => {
-            this.level.enemies.forEach((enemy) => {
+            this.level.enemies.forEach((enemy, enemyIndex) => {
                 if (this.character.isColliding(enemy)) {
-                    this.character.hit();
-                    console.log('Collision with Character, energy', this.character.energy);
+                    const charBottom = this.character.y + this.character.height - (this.character.collisionOffset?.bottom || 0);
+                    const enemyTop = enemy.y + (enemy.collisionOffset?.top || 0);
+                    const isFalling = this.character.speedY < 0;
+
+                    if (isFalling && charBottom < enemyTop + enemy.height * 0.4) {
+                        if (typeof enemy.die === 'function') {
+                            enemy.die();
+                        }
+
+                        this.character.speedY = 15;
+
+                        setTimeout(() => {
+                            const idx = this.level.enemies.indexOf(enemy);
+                            if (idx !== -1) this.level.enemies.splice(idx, 1);
+                        }, 500);
+                    } else {
+                        this.character.hit();
+                        console.log('Collision with Character, energy', this.character.energy);
+                    }
                 }
             });
 
@@ -36,40 +73,38 @@ class World {
 
             this.level.bottles.forEach(bottle => {
                 if (!bottle.collected && this.character.isColliding(bottle)) {
-                    bottle.collect();
-                    this.character.bottles++;
+                    if (this.character.bottles < this.character.maxBottles) {
+                        bottle.collect();
+                        this.character.collectBottle();
+                    }
                 }
             });
 
             this.character.thrownBottles.forEach((bottle, bottleIndex) => {
-                // Gegner-Treffer
                 this.level.enemies.forEach((enemy, enemyIndex) => {
                     if (!bottle.hit && this.character.isColliding.call(bottle, enemy)) {
                         bottle.hit = true;
                         bottle.speedX = 0;
                         bottle.gravity = 0;
 
-                        // normaler Gegner stirbt sofort
-                        if (!(enemy instanceof Endboss)) {
-                            this.level.enemies.splice(enemyIndex, 1);
+                        if (typeof enemy.die === 'function') {
+                            enemy.die();
+                            setTimeout(() => {
+                                const idx = this.level.enemies.indexOf(enemy);
+                                if (idx !== -1) this.level.enemies.splice(idx, 1);
+                            }, 500);
                         } else {
-                            // Bossgegner HP
-                            enemy.hitsTaken = (enemy.hitsTaken || 0) + 1;
-                            if (enemy.hitsTaken >= 25) {
-                                this.level.enemies.splice(enemyIndex, 1);
-                            }
+                            this.level.enemies.splice(enemyIndex, 1);
                         }
                     }
                 });
 
-                // Bodenhit
                 if (bottle.y > 350 && !bottle.hit) {
                     bottle.hit = true;
                     bottle.speedX = 0;
                     bottle.gravity = 0;
                 }
 
-                // Splash zu Ende → entfernen
                 if (bottle.hit && bottle.currentImage === bottle.imagesSplash.length - 1) {
                     setTimeout(() => {
                         this.character.thrownBottles.splice(bottleIndex, 1);
@@ -79,6 +114,7 @@ class World {
 
         }, 50);
     }
+
 
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -103,7 +139,6 @@ class World {
                 }
             });
 
-            // Flaschen im Flug zeichnen
             this.character.thrownBottles.forEach(bottle => {
                 bottle.update();
                 this.addToMap(bottle);

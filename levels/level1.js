@@ -6,7 +6,6 @@ for (let i = 0; i < 10; i++) {
     coins.push(new Coin(x, y));
 }
 
-// Münzen für Jump
 for (let i = 0; i < 10; i++) {
     const x = Math.random() * 7000;
     const y = 80 + Math.random() * 50;
@@ -121,13 +120,11 @@ const level1 = new Level(
 
 level1.coins = coins;
 
-// Flaschen erzeugen und Level hinzufügen
 let bottles = [];
 for (let i = 0; i < 15; i++) {
-    let randomX = 500 + Math.random() * 5000; // X-Position zufällig
-    let randomY = 350; // Y-Position (Bodenhöhe)
+    let randomX = 500 + Math.random() * 5000;
+    let randomY = 350; 
     bottles.push(new Bottle(randomX, randomY));
 }
 
-// Flaschen dem Level zuweisen
 level1.bottles = bottles;

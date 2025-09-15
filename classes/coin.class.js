@@ -35,7 +35,6 @@ class Coin extends MovableObject {
     }
 
     isTouchedBy(character) {
-        // kleine "Hitbox" für Coin nur in der Mitte
         const coinTop = this.y + this.height / 4;
         const coinBottom = this.y + this.height * 3 / 4;
         const coinLeft = this.x + this.width / 4;

@@ -13,13 +13,13 @@ class ThrownBottle extends MovableObject {
         this.y = y;
         this.width = 40;
         this.height = 60;
-        this.speedX = 10 * direction; // Fluggeschwindigkeit
-        this.speedY = 15;
-        this.gravity = 0.7;             // optional
+        this.speedX = 10 * direction; 
+        this.speedY = 20;
+        this.gravity = 0.7;            
         this.rotation = 0;
         this.hit = false;
 
-        // Animationsbilder (im Flug)
+
         this.imagesFlying = [
             'img/salsa_bottle/salsa_bottle_bottle_rotation/salsa_bottle_bottle_rotation_bottle_rotation_1.png',
             'img/salsa_bottle/salsa_bottle_bottle_rotation/salsa_bottle_bottle_rotation_bottle_rotation_2.png',
@@ -27,7 +27,6 @@ class ThrownBottle extends MovableObject {
             'img/salsa_bottle/salsa_bottle_bottle_rotation/salsa_bottle_bottle_rotation_bottle_rotation_4.png'
         ];
 
-        // Animationsbilder (Zerplatzen)
         this.imagesSplash = [
             'img/salsa_bottle/salsa_bottle_bottle_rotation/salsa_bottle_bottle_rotation_bottle_splash/salsa_bottle_bottle_rotation_bottle_splash_bottle_splash_1.png',
             'img/salsa_bottle/salsa_bottle_bottle_rotation/salsa_bottle_bottle_rotation_bottle_splash/salsa_bottle_bottle_rotation_bottle_splash_bottle_splash_2.png',
@@ -53,7 +52,6 @@ class ThrownBottle extends MovableObject {
             this.y += this.gravity;
             this.animate(this.imagesFlying);
         } else {
-            // Wenn getroffen: Splash spielen
             this.animate(this.imagesSplash, true);
         }
     }
@@ -73,7 +71,6 @@ class ThrownBottle extends MovableObject {
 
 
 }
-// Alias-Klasse, damit Character.throwBottle() funktioniert
 class ThrowableBottle extends ThrownBottle { }
 
 

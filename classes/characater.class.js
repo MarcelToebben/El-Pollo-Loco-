@@ -5,10 +5,11 @@ class Character extends MovableObject {
     speed = 6;
     isHurt = false;
 
-    bottles = 0;                  // eingesammelte Flaschen
-    thrownBottles = [];           // geworfene Flaschen
-    throwCooldown = 500;          // ms zwischen Würfen
+    bottles = 0;
+    thrownBottles = [];
+    throwCooldown = 500;
     lastThrowTime = 0;
+
 
     collisionOffset = {
         top: 150,
@@ -94,21 +95,28 @@ class Character extends MovableObject {
         this.loadImages(this.imagesIdleNormal);
         this.loadImages(this.imagesIdleLong);
         this.loadImages(this.imagesHit);
-        this.bottles = 5;
+        this.bottles = 0;
+        this.maxBottles = 10;
+        this.lastThrowTime = 0;
+        this.throwCooldown = 300;
         this.thrownBottles = [];
     }
 
-    // Methode in Character einfügen (z. B. unter dem constructor)
+    collectBottle() {
+        if (this.bottles < this.maxBottles) {
+            this.bottles++;
+        }
+    }
+
     throwBottle() {
-        // Prüfen ob genügend Flaschen da sind und Cooldown abgelaufen ist
         if (this.bottles > 0 && Date.now() - this.lastThrowTime > this.throwCooldown) {
             this.bottles--;
             this.lastThrowTime = Date.now();
 
-            // Richtung festlegen
+
             const dir = this.otherDirection ? -1 : 1;
 
-            // Neue Flasche erzeugen und ins Array pushen
+
             const bottle = new ThrowableBottle(
                 this.x + this.width / 2,
                 this.y + this.height / 2,
@@ -160,7 +168,6 @@ class Character extends MovableObject {
                 this.lastMoveTime = Date.now();
             }
 
-            // Werfen unabhängig vom Springen (↓ oder Wurftaste)
             if (this.world.keyboard.down || this.world.keyboard.throwKey) {
                 this.throwBottle();
             }

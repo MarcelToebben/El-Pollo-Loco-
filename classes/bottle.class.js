@@ -2,20 +2,18 @@ class Bottle extends MovableObject {
     constructor(x, y) {
         super();
         
-        // Zwei verschiedene Bilder für Bodenflaschen
         this.imagesGround = [
-            'img/salsa_bottle/salsa_bottle_salsa_bottle_on_ground_1.png',  // Flasche links tiefer im Sand
-            'img/salsa_bottle/salsa_bottle_salsa_bottle_on_ground_2.png' // Flasche rechts tiefer im Sand
+            'img/salsa_bottle/salsa_bottle_salsa_bottle_on_ground_1.png',  
+            'img/salsa_bottle/salsa_bottle_salsa_bottle_on_ground_2.png' 
         ];
 
-        // Zufälliges Bodenbild wählen
         let randomIndex = Math.floor(Math.random() * this.imagesGround.length);
         this.loadImage(this.imagesGround[randomIndex]);
 
         this.x = x;
         this.y = y;
-        this.width = 60;  // Größe anpassen
-        this.height = 80; // Größe anpassen
+        this.width = 60;  
+        this.height = 80; 
         this.collected = false;
 
         this.collisionOffset = {

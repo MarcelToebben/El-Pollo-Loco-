@@ -4,6 +4,6 @@ class Keyboard {
     up = false;
     down = false;
     space = false;
-    throwKey = false; // neue Eigenschaft
+    throwKey = false; 
 
 }
