@@ -129,6 +129,9 @@ class World {
             this.level.coins.forEach(coin => {
                 if (!coin.collected) {
                     coin.animate();
+
+
+
                     this.addToMap(coin);
                 }
             });
@@ -167,7 +170,7 @@ class World {
             this.flipImage(mo);
         }
         mo.draw(this.ctx);
-        mo.drawBorder(this.ctx);
+       // mo.drawBorder(this.ctx);
         if (mo.otherDirection) {
             this.flipImageBack(mo);
         }
