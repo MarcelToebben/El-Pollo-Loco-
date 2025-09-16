@@ -2,11 +2,14 @@ let canvas;
 let ctx;
 let world;
 let keyboard = new Keyboard();
+let menuBackground = new Image();
+menuBackground.src = 'img/background/el_pollo_loco_menu_background_2.png'; 
 
 let startImage = new Image();
 startImage.src = 'img/intro_outro_screens/intro_outro_screens_start/startscreen_1.png'; 
 
-let startScreenActive = true; 
+let gameState = "startscreen"; 
+
 
 function init() {
   canvas = document.getElementById('canvas');
@@ -18,6 +21,8 @@ function init() {
 
   window.addEventListener("keydown", handleKeyDown);
   window.addEventListener("keyup", handleKeyUp);
+
+  canvas.addEventListener('click', handleMenuClick);
 }
 
 
@@ -32,10 +37,10 @@ function drawStartScreen() {
   const h1Color = getComputedStyle(document.querySelector('h1')).color;
 
   if (blink) {
-    ctx.fillStyle = h1Color;
-    ctx.font = '48px sancreek';
+    ctx.fillStyle = 'black';
+    ctx.font = '32px sancreek';
     ctx.textAlign = 'center';
-    ctx.fillText('Press any key to start', canvas.width / 2, 60);
+    ctx.fillText('Beliebige Taste drücken', canvas.width / 2, 60);
   }
 
   if (Date.now() % 1000 < 500) {
@@ -44,18 +49,75 @@ function drawStartScreen() {
     blink = false;
   }
 
-  if (startScreenActive) {
-    requestAnimationFrame(drawStartScreen);
+  if (gameState === "startscreen") {
+  requestAnimationFrame(drawStartScreen);
+}
+
+}
+
+function startNewGame() {
+  gameState = "playing";
+  world = new World(canvas, keyboard);
+  world.draw();
+}
+
+
+function drawMenu() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.drawImage(menuBackground, 0, 0, canvas.width, canvas.height);
+
+   ctx.fillStyle = 'rgba(0,0,0,0.3)';
+   ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = 'white';
+  ctx.font = '48px sancreek';
+  ctx.textAlign = 'center';
+  ctx.fillText('Hauptmenü', canvas.width / 2, 150);
+
+  drawButton('Neues Spiel', canvas.width / 2 - 100, 250, 200, 60);
+
+  if (gameState === "menu") {
+    requestAnimationFrame(drawMenu); 
+  }
+}
+
+
+function drawButton(text, x, y, w, h) {
+  ctx.fillStyle = '#3366cc';
+  ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = 'white';
+  ctx.font = '32px sancreek';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, x + w/2, y + h/2);
+}
+
+function handleMenuClick(e) {
+  if (gameState !== "menu") return;
+
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  const bx = canvas.width / 2 - 100;
+  const by = 250;
+  const bw = 200;
+  const bh = 60;
+
+  if (mouseX >= bx && mouseX <= bx + bw && mouseY >= by && mouseY <= by + bh) {
+    startNewGame();
   }
 }
 
 
 
 function startGameOnce() {
-    if (!startScreenActive) return;
-    startScreenActive = false;
-    document.removeEventListener('keydown', startGameOnce);
-    startGame();
+  if (gameState !== "startscreen") return;
+
+  gameState = "menu"; 
+  document.removeEventListener('keydown', startGameOnce);
+  drawMenu();
 }
 
 function startGame() {
@@ -65,7 +127,7 @@ function startGame() {
 
 
 function handleKeyDown(e) {
-    if (startScreenActive) return; 
+    if (gameState !== "playing") return;
 
     if (e.keyCode == 39) keyboard.right = true;
     if (e.keyCode == 68) keyboard.right = true;
@@ -87,7 +149,8 @@ function handleKeyDown(e) {
 }
 
 function handleKeyUp(e) {
-    if (startScreenActive) return; 
+   if (gameState !== "playing") return;
+
 
     if (e.keyCode == 39) keyboard.right = false;
     if (e.keyCode == 68) keyboard.right = false;
