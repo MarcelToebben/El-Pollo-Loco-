@@ -8,6 +8,8 @@ class World {
     maxGroundBottles = 5;
 
     camera_x = 0;
+    collisionInterval = null;
+    animationFrameId = null;
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
@@ -16,40 +18,35 @@ class World {
 
         this.statusBars = new StatusBars(this);
 
-        this.draw();
         this.setWorld();
-        this.checkCollisions();
-        setInterval(() => this.respawnBottles(), this.bottleRespawnInterval);
+        this.start();
     }
 
+    start() {
+        // Collisions-Loop starten
+        this.startCollisionCheck();
+
+        // Bottle-Respawn starten
+        setInterval(() => this.respawnBottles(), this.bottleRespawnInterval);
+
+        // Spiel-Zeichnung starten
+        this.draw();
+    }
 
     setWorld() {
         this.character.world = this;
-
         this.level.enemies.forEach(enemy => {
             enemy.world = this;
         });
     }
 
+    startCollisionCheck() {
+        if (this.collisionInterval) clearInterval(this.collisionInterval);
 
-    respawnBottles() {
-        const groundBottles = this.level.bottles.filter(b => !b.collected);
+        this.collisionInterval = setInterval(() => {
+            if (gameState !== "playing") return; // keine Kollisionen prüfen wenn Pause
 
-        if (groundBottles.length === 0 && this.character.bottles < this.character.maxBottles) {
-            for (let i = 0; i < this.maxGroundBottles; i++) {
-                const x = 500 + i * 200 + Math.random() * 300;
-                const y = 360;
-                const newBottle = new Bottle(x, y);
-                newBottle.collected = false;
-                this.level.bottles.push(newBottle);
-            }
-        }
-    }
-
-
-    checkCollisions() {
-        setInterval(() => {
-            this.level.enemies.forEach((enemy, enemyIndex) => {
+            this.level.enemies.forEach((enemy) => {
                 if (this.character.isColliding(enemy)) {
                     const charBottom = this.character.y + this.character.height - (this.character.collisionOffset?.bottom || 0);
                     const enemyTop = enemy.y + (enemy.collisionOffset?.top || 0);
@@ -59,7 +56,6 @@ class World {
                         if (typeof enemy.die === 'function') {
                             enemy.die();
                         }
-
                         this.character.speedY = 15;
 
                         setTimeout(() => {
@@ -73,14 +69,15 @@ class World {
                 }
             });
 
+            // Coins sammeln
             this.level.coins.forEach(coin => {
                 if (!coin.collected && this.character.isColliding(coin)) {
-                    coin.collected = true;      
-                    this.character.collectCoin(); 
+                    coin.collected = true;
+                    this.character.collectCoin();
                 }
             });
 
-
+            // Flaschen sammeln
             this.level.bottles.forEach(bottle => {
                 if (!bottle.collected && this.character.isColliding(bottle)) {
                     if (this.character.bottles < this.character.maxBottles) {
@@ -90,8 +87,9 @@ class World {
                 }
             });
 
+            // Geworfene Flaschen gegen Gegner prüfen
             this.character.thrownBottles.forEach((bottle, bottleIndex) => {
-                this.level.enemies.forEach((enemy, enemyIndex) => {
+                this.level.enemies.forEach((enemy) => {
                     if (!bottle.hit && this.character.isColliding.call(bottle, enemy)) {
                         bottle.hit = true;
                         bottle.speedX = 0;
@@ -103,8 +101,6 @@ class World {
                                 const idx = this.level.enemies.indexOf(enemy);
                                 if (idx !== -1) this.level.enemies.splice(idx, 1);
                             }, 500);
-                        } else {
-                            this.level.enemies.splice(enemyIndex, 1);
                         }
                     }
                 });
@@ -125,8 +121,25 @@ class World {
         }, 50);
     }
 
+    respawnBottles() {
+        if (gameState !== "playing") return; // keine neuen Flaschen im Pause Menü
+
+        const groundBottles = this.level.bottles.filter(b => !b.collected);
+
+        if (groundBottles.length === 0 && this.character.bottles < this.character.maxBottles) {
+            for (let i = 0; i < this.maxGroundBottles; i++) {
+                const x = 500 + i * 200 + Math.random() * 300;
+                const y = 360;
+                const newBottle = new Bottle(x, y);
+                newBottle.collected = false;
+                this.level.bottles.push(newBottle);
+            }
+        }
+    }
 
     draw() {
+        if (gameState !== "playing") return; // nichts zeichnen, wenn Pause oder Menü
+
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.translate(this.camera_x, 0);
 
@@ -139,9 +152,6 @@ class World {
             this.level.coins.forEach(coin => {
                 if (!coin.collected) {
                     coin.animate();
-
-
-
                     this.addToMap(coin);
                 }
             });
@@ -156,15 +166,16 @@ class World {
                 bottle.update();
                 this.addToMap(bottle);
             });
-
-
         }
 
         this.ctx.translate(-this.camera_x, 0);
 
         this.statusBars.draw();
 
-        requestAnimationFrame(() => this.draw());
+        // Nur neues Frame starten, wenn das Spiel läuft
+        if (gameState === "playing") {
+            this.animationFrameId = requestAnimationFrame(() => this.draw());
+        }
     }
 
     addObjectsToMap(objects) {
@@ -176,13 +187,11 @@ class World {
         });
     }
 
-
     addToMap(mo) {
         if (mo.otherDirection) {
             this.flipImage(mo);
         }
         mo.draw(this.ctx);
-        // mo.drawBorder(this.ctx);
         if (mo.otherDirection) {
             this.flipImageBack(mo);
         }
@@ -196,7 +205,7 @@ class World {
     }
 
     flipImageBack(mo) {
-        mo.x = mo.x * -1
+        mo.x = mo.x * -1;
         this.ctx.restore();
     }
 }

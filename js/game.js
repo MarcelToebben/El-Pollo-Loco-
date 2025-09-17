@@ -1,8 +1,7 @@
 let canvas;
 let ctx;
 let world;
-let hoverButton = null; 
-let hoverScale = 1;
+let hoverButton = null;
 let keyboard = new Keyboard();
 
 let menuBackground = new Image();
@@ -11,12 +10,13 @@ menuBackground.src = 'img/background/el_pollo_loco_menu_background_3.png';
 let startImage = new Image();
 startImage.src = 'img/intro_outro_screens/intro_outro_screens_start/startscreen_1.png';
 
-let gameState = "startscreen"; 
+let gameState = "startscreen";
+let storylinePage = 1; // <-- Storyline Seitenzähler
 let buttonHitboxes = {};
+let previousState = "menu"; 
 
-// zentrale Positionen der Buttons
 let buttonPositions = {
-    newGame: { x: 175, y: 155 },
+    newGame: { x: 174, y: 156 },
     controls: { x: 540, y: 120 },
     storyline: { x: 575, y: 370 }
 };
@@ -54,20 +54,10 @@ function handleMouseMove(e) {
     hoverButton = null;
     canvas.style.cursor = 'default';
 
-    if (gameState === "menu") {
-        for (let key in buttonHitboxes) {
-            let box = buttonHitboxes[key];
-            if (x >= box.left && x <= box.right && y >= box.top && y <= box.bottom) {
-                hoverButton = key;
-                canvas.style.cursor = 'pointer';
-            }
-        }
-    }
-
-    if (gameState === "controls" || gameState === "storyline") {
-        const backBox = { left: canvas.width / 2 - 100, right: canvas.width / 2 + 100, top: 400, bottom: 460 };
-        if (x >= backBox.left && x <= backBox.right && y >= backBox.top && y <= backBox.bottom) {
-            hoverButton = "back";
+    for (let key in buttonHitboxes) {
+        let box = buttonHitboxes[key];
+        if (x >= box.left && x <= box.right && y >= box.top && y <= box.bottom) {
+            hoverButton = key;
             canvas.style.cursor = 'pointer';
         }
     }
@@ -80,6 +70,8 @@ function startNewGame() {
 }
 
 function drawMenu() {
+    storylinePage = 1;
+    buttonHitboxes = {};
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(menuBackground, 0, 0, canvas.width, canvas.height);
 
@@ -87,22 +79,26 @@ function drawMenu() {
     ctx.textAlign = 'center';
     ctx.lineWidth = 4;
     ctx.strokeStyle = 'white';
-    ctx.strokeText('Hauptmenü', canvas.width / 2, 35);
-    ctx.fillStyle = 'black';
-    ctx.fillText('Hauptmenü', canvas.width / 2, 35);
 
-    // Buttons zeichnen + Hitboxen automatisch setzen
+    const headlineX = canvas.width / 2 - 68;
+    ctx.strokeText('Hauptmenü', headlineX, 35);
+    ctx.fillStyle = 'black';
+    ctx.fillText('Hauptmenü', headlineX, 35);
+
     drawButton('Neues Spiel', buttonPositions.newGame.x, buttonPositions.newGame.y, "newGame");
     drawButton('Steuerung', buttonPositions.controls.x, buttonPositions.controls.y, "controls");
     drawButton('Storyline', buttonPositions.storyline.x, buttonPositions.storyline.y, "storyline");
+
+    drawButton('Datenschutz', 20, canvas.height - 30, "datenschutz", true);
+    drawButton('Impressum', canvas.width - 120, canvas.height - 30, "impressum", true);
 
     if (gameState === "menu") requestAnimationFrame(drawMenu);
 }
 
 function drawControls() {
+    buttonHitboxes = {};
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(menuBackground, 0, 0, canvas.width, canvas.height);
-
     ctx.fillStyle = 'rgba(0,0,0,0.5)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -112,41 +108,103 @@ function drawControls() {
     drawStrokedText('Springen: W / Pfeil oben / Leertaste', canvas.width / 2, 250, '28px sancreek');
     drawStrokedText('Werfen: S / Pfeil unten', canvas.width / 2, 300, '28px sancreek');
 
-    drawButton('Zurück', canvas.width / 2 - 100, 400, "back");
-
+    drawButton('Zurück', canvas.width / 2 - 60, canvas.height - 40, "back");
     if (gameState === "controls") requestAnimationFrame(drawControls);
 }
 
 function drawStoryline() {
+    buttonHitboxes = {};
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(menuBackground, 0, 0, canvas.width, canvas.height);
-
     ctx.fillStyle = 'rgba(0,0,0,0.5)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     drawStrokedText('Storyline', canvas.width / 2, 35, '48px sancreek');
-    drawStrokedText('Ein furchtloser Held kämpft gegen das Chaos...', canvas.width / 2, 150, '28px sancreek');
-    drawStrokedText('Begleite ihn auf seinem Abenteuer durch gefährliche Level!', canvas.width / 2, 200, '28px sancreek');
-    drawStrokedText('Sammle Items, besiege Feinde und rette die Welt!', canvas.width / 2, 250, '28px sancreek');
 
-    drawButton('Zurück', canvas.width / 2 - 100, 400, "back");
+    if (storylinePage === 1) {
+        drawStrokedText('Pepe ist kein gewöhnlicher Typ – er ist der wohl größte Taco-Fan Mexikos.', canvas.width / 2, 150, '18px sancreek');
+        drawStrokedText('Mit seinem markanten Schnauzer und Hunger zieht er durch die heiße Wüste.', canvas.width / 2, 190, '18px sancreek');
+        drawStrokedText('Doch seine Reise ist nicht nur kulinarisch: überall lauern aggressive Hühner.', canvas.width / 2, 230, '18px sancreek');
+        drawStrokedText('Zum Glück sammelt Pepe unterwegs scharfe Salsa-Flaschen.', canvas.width / 2, 270, '18px sancreek');
+        drawStrokedText('Mit jeder Flasche kann er sich verteidigen – je mehr Salsa desto feuriger sein Angriff.', canvas.width / 2, 310, '18px sancreek');
+
+        drawButton('Weiter zu Seite 2', canvas.width - 250, canvas.height - 40, "nextStoryline", true);
+    } else {
+        drawStrokedText('Sein Ziel: den Weg durch die Wüste zu überstehen', canvas.width / 2, 150, '18px sancreek');
+        drawStrokedText('und das riesige Boss-Huhn zu besiegen. Ein monströses Federvieh,', canvas.width / 2, 190, '18px sancreek');
+        drawStrokedText('tausendfach stärker als seine kleinen Schergen.', canvas.width / 2, 230, '18px sancreek');
+        drawStrokedText('Nur wer flink springt, klug sammelt und mutig wirft,', canvas.width / 2, 270, '18px sancreek');
+        drawStrokedText('kann Pepes schärfste Herausforderung meistern.', canvas.width / 2, 310, '18px sancreek');
+
+        drawButton('Zurück zu Seite 1', 50, canvas.height - 40, "prevStoryline", true);
+    }
+
+    drawButton('Zurück', canvas.width / 2 - 60, canvas.height - 40, "back");
 
     if (gameState === "storyline") requestAnimationFrame(drawStoryline);
 }
 
-function drawPauseMenu() {
+function drawDatenschutz() {
+    buttonHitboxes = {};
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(menuBackground, 0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    drawStrokedText('Datenschutz', canvas.width / 2, 35, '48px sancreek');
+    drawStrokedText('Hier stehen deine Datenschutzinfos...', canvas.width / 2, 150, '28px sancreek');
+
+    drawButton('Zurück', canvas.width / 2 - 60, canvas.height - 40, "back");
+    if (gameState === "datenschutz") requestAnimationFrame(drawDatenschutz);
+}
+
+function drawImpressum() {
+    buttonHitboxes = {};
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(menuBackground, 0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    drawStrokedText('Impressum', canvas.width / 2, 35, '48px sancreek');
+
+    drawStrokedText('Informationen über den Diensteanbieter.', canvas.width / 2, 120, '22px sancreek');
+    drawStrokedText('Marcel Többen', canvas.width / 2, 160, '22px sancreek');
+    drawStrokedText('Striehlstraße 5, 30159 Hannover, Deutschland', canvas.width / 2, 200, '22px sancreek');
+    drawStrokedText('Tel.: 01794115090', canvas.width / 2, 240, '22px sancreek');
+    drawStrokedText('E-Mail: marcel.toebben1@gmx.de', canvas.width / 2, 280, '22px sancreek');
+    drawStrokedText('Alle Texte sind urheberrechtlich geschützt.', canvas.width / 2, 340, '22px sancreek');
+
+    drawButton('Zurück', canvas.width / 2 - 60, canvas.height - 40, "back");
+    if (gameState === "impressum") requestAnimationFrame(drawImpressum);
+}
+
+function drawPauseMenu() {
+    storylinePage = 1;
+    buttonHitboxes = {};
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(menuBackground, 0, 0, canvas.width, canvas.height);
+
+    let time = Date.now() / 500;
+    let scale = 1 + Math.sin(time) * 0.05;
+    ctx.save();
+    ctx.translate(canvas.width / 2 - 100, 35);
+    ctx.scale(scale, scale);
 
     ctx.font = '48px sancreek';
     ctx.textAlign = 'center';
     ctx.lineWidth = 4;
     ctx.strokeStyle = 'white';
-    ctx.strokeText('Pause', canvas.width / 2, 35);
+    ctx.strokeText('Pause', 0, 0);
     ctx.fillStyle = 'black';
-    ctx.fillText('Pause', canvas.width / 2, 35);
+    ctx.fillText('Pause', 0, 0);
+    ctx.restore();
 
-    hoverScale = hoverButton ? 1 + 0.05 * Math.sin(Date.now() / 150) : 1;
+    drawButton('Weiter...', 210, 160, "resume");
+    drawButton('Zurück ins Hauptmenü', 185, 460, "backToMenu");
+    drawButton('Steuerung', 550, 120, "controlsPause");
+    drawButton('Storyline', 575, 370, "storylinePause");
+    drawButton('Datenschutz', 20, canvas.height - 30, "datenschutzPause", true);
+    drawButton('Impressum', canvas.width - 120, canvas.height - 30, "impressumPause", true);
 
     if (gameState === "pause") requestAnimationFrame(drawPauseMenu);
 }
@@ -162,14 +220,14 @@ function drawStrokedText(text, x, y, font) {
     ctx.fillText(text, x, y);
 }
 
-function drawButton(text, x, y, buttonId) {
-    ctx.font = '32px sancreek';
+function drawButton(text, x, y, buttonId, small = false) {
+    ctx.font = small ? '18px sancreek' : '32px sancreek';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
 
     let scale = hoverButton === buttonId ? 1.05 : 1;
     let width = ctx.measureText(text).width;
-    let height = 32;
+    let height = small ? 18 : 32;
 
     ctx.save();
     ctx.translate(x, y);
@@ -181,7 +239,6 @@ function drawButton(text, x, y, buttonId) {
     ctx.fillText(text, 0, 0);
     ctx.restore();
 
-    // Hitbox basierend auf aktueller Position setzen
     buttonHitboxes[buttonId] = {
         left: x,
         right: x + width,
@@ -199,18 +256,45 @@ function handleCanvasClick(e) {
             let box = buttonHitboxes[key];
             if (x >= box.left && x <= box.right && y >= box.top && y <= box.bottom) {
                 if (key === "newGame") startNewGame();
-                else if (key === "controls") { gameState = "controls"; drawControls(); }
-                else if (key === "storyline") { gameState = "storyline"; drawStoryline(); }
+                else if (key === "controls") { previousState = "menu"; gameState = "controls"; drawControls(); }
+                else if (key === "storyline") { previousState = "menu"; gameState = "storyline"; storylinePage=1; drawStoryline(); }
+                else if (key === "datenschutz") { previousState = "menu"; gameState = "datenschutz"; drawDatenschutz(); }
+                else if (key === "impressum") { previousState = "menu"; gameState = "impressum"; drawImpressum(); }
                 return;
             }
         }
     }
 
-    if (gameState === "controls" || gameState === "storyline") {
-        const backBox = { left: canvas.width / 2 - 100, right: canvas.width / 2 + 100, top: 400, bottom: 460 };
-        if (x >= backBox.left && x <= backBox.right && y >= backBox.top && y <= backBox.bottom) {
-            gameState = "menu";
-            drawMenu();
+    if (gameState === "pause") {
+        for (let key in buttonHitboxes) {
+            let box = buttonHitboxes[key];
+            if (x >= box.left && x <= box.right && y >= box.top && y <= box.bottom) {
+                if (key === "resume") { gameState = "playing"; world.draw(); }
+                else if (key === "backToMenu") { gameState = "menu"; world = null; drawMenu(); }
+                else if (key === "controlsPause") { previousState = "pause"; gameState = "controls"; drawControls(); }
+                else if (key === "storylinePause") { previousState = "pause"; gameState = "storyline"; storylinePage=1; drawStoryline(); }
+                else if (key === "datenschutzPause") { previousState = "pause"; gameState = "datenschutz"; drawDatenschutz(); }
+                else if (key === "impressumPause") { previousState = "pause"; gameState = "impressum"; drawImpressum(); }
+                return;
+            }
+        }
+    }
+
+    if (gameState === "storyline") {
+        if (buttonHitboxes["nextStoryline"] && x >= buttonHitboxes["nextStoryline"].left && x <= buttonHitboxes["nextStoryline"].right && y >= buttonHitboxes["nextStoryline"].top && y <= buttonHitboxes["nextStoryline"].bottom) {
+            storylinePage = 2; drawStoryline(); return;
+        }
+        if (buttonHitboxes["prevStoryline"] && x >= buttonHitboxes["prevStoryline"].left && x <= buttonHitboxes["prevStoryline"].right && y >= buttonHitboxes["prevStoryline"].top && y <= buttonHitboxes["prevStoryline"].bottom) {
+            storylinePage = 1; drawStoryline(); return;
+        }
+    }
+
+    if (["controls","storyline","datenschutz","impressum"].includes(gameState)) {
+        let box = buttonHitboxes["back"];
+        if (box && x >= box.left && x <= box.right && y >= box.top && y <= box.bottom) {
+            gameState = previousState;
+            if (previousState === "menu") drawMenu();
+            else if (previousState === "pause") drawPauseMenu();
             return;
         }
     }
