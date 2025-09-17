@@ -1,3 +1,4 @@
+// movable.js
 class MovableObject {
     x = 120;
     y = 280;
@@ -22,6 +23,7 @@ class MovableObject {
     }
 
     isAboveGround() {
+        // Für dein Spiel offenbar die Höhe < 150 als "in der Luft"
         return this.y < 150;
     }
 
@@ -35,25 +37,25 @@ class MovableObject {
     }
 
     drawBorder(ctx) {
-
         if (this instanceof Character ||
             this instanceof Chicken ||
             this instanceof SmallChicken ||
             this instanceof BiggerChicken ||
             this instanceof Endboss) {
             ctx.beginPath();
-            ctx.lineWitdh = '10';
+            ctx.lineWidth = 10;
             ctx.strokeStyle = 'red';
             ctx.rect(this.x, this.y, this.width, this.height);
             ctx.stroke();
         }
     }
 
+    // Korrekte AABB-Kollision (rechteckbasiert)
     isColliding(mo) {
         return this.x + this.width > mo.x &&
-            this.y + this.height > mo.y &&
-            this.x < mo.x &&
-            this.y < mo.y + mo.height;
+               this.y + this.height > mo.y &&
+               this.x < mo.x + mo.width &&
+               this.y < mo.y + mo.height;
     }
 
     hit() {
@@ -95,4 +97,4 @@ class MovableObject {
     jump() {
         this.speedY = 21;
     }
-} 
+}

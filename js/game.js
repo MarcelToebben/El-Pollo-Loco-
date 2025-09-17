@@ -1,3 +1,5 @@
+// games.js (komplett, überarbeitet)
+// ---------------------------------
 let canvas;
 let ctx;
 let world;
@@ -10,23 +12,47 @@ menuBackground.src = 'img/background/el_pollo_loco_menu_background_3.png';
 let startImage = new Image();
 startImage.src = 'img/intro_outro_screens/intro_outro_screens_start/startscreen_1.png';
 
-let gameState = "startscreen";
+let gameOverBackground = new Image();
+gameOverBackground.src = 'img/background/el_pollo_loco_gameover_menu_background.png';
+
+let gameState = "startscreen"; // startscreen, menu, playing, pause, controls, storyline, datenschutz, impressum, gameover
 let storylinePage = 1; // <-- Storyline Seitenzähler
 let buttonHitboxes = {};
-let previousState = "menu"; 
+let previousState = "menu";
 
 let buttonPositions = {
     newGame: { x: 174, y: 156 },
     controls: { x: 540, y: 120 },
-    storyline: { x: 575, y: 370 }
+    storyline: { x: 575, y: 370 },
+    restart: { x: 174, y: 156 },
+    backToMenu: { x: 575, y: 370 },
+
+};
+
+// Layout-Konfiguration für Game Over: ändere diese Werte frei
+let gameOverLayout = {
+    // Wenn headlineX === null => zentriert wie andere Menüs (canvas.width / 2 - 68)
+    headlineX: null,
+    headlineY: 100, // y-Position der "Game Over"-Überschrift
+
+    // Buttons: frei platzierbar
+    restartButton: { x: 210, y: 300 },
+    backToMenuButton: { x: 185, y: 360 },
+
+    // kleine links (optional, wie bei Hauptmenü)
+    showFooterLinks: true,
+    footerDatenschutz: { x: 20, yFromBottom: 30, small: true },
+    footerImpressum: { xFromRight: 120, yFromBottom: 30, small: true }
 };
 
 function init() {
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
 
+    // Startbildschirm zeichnen
     drawStartScreen();
 
+    // Events
     document.addEventListener('keydown', startGameOnce);
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
@@ -34,6 +60,9 @@ function init() {
     canvas.addEventListener('click', handleCanvasClick);
     canvas.addEventListener('mousemove', handleMouseMove);
 }
+
+// Falls du init beim Laden automatisch aufrufen willst:
+window.addEventListener('load', init);
 
 let blink = true;
 
@@ -209,6 +238,38 @@ function drawPauseMenu() {
     if (gameState === "pause") requestAnimationFrame(drawPauseMenu);
 }
 
+function drawGameOver() {
+    buttonHitboxes = {};
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Hintergrund zeichnen (wie andere Menüs)
+    ctx.drawImage(gameOverBackground, 0, 0, canvas.width, canvas.height);
+
+    // Überschrift "Game Over" exakt wie andere Menüs (gleiches Styling)
+    ctx.font = '48px sancreek';
+    ctx.textAlign = 'center';
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = 'white';
+
+    const headlineX = (gameOverLayout.headlineX === null) ? (canvas.width / 2 - 68) : gameOverLayout.headlineX;
+    const headlineY = gameOverLayout.headlineY;
+    ctx.strokeText('Game Over', headlineX, headlineY);
+    ctx.fillStyle = 'black';
+    ctx.fillText('Game Over', headlineX, headlineY);
+
+    // Buttons mit exakt derselben drawButton-Funktion (gleiche Optik wie Hauptmenü/Pause)
+    drawButton('Nochmal spielen', buttonPositions.newGame.x, buttonPositions.newGame.y, "restart");
+    drawButton('Zurück ins Hauptmenü', buttonPositions.newGame.x, buttonPositions.newGame.y, "backToMenu");
+
+    // Footer Links (optional, wie Hauptmenü)
+    if (gameOverLayout.showFooterLinks) {
+        drawButton('Datenschutz', gameOverLayout.footerDatenschutz.x, canvas.height - gameOverLayout.footerDatenschutz.yFromBottom, "datenschutzGameOver", true);
+        drawButton('Impressum', canvas.width - gameOverLayout.footerImpressum.xFromRight, canvas.height - gameOverLayout.footerImpressum.yFromBottom, "impressumGameOver", true);
+    }
+
+    if (gameState === "gameover") requestAnimationFrame(drawGameOver);
+}
+
 function drawStrokedText(text, x, y, font) {
     ctx.font = font;
     ctx.textAlign = 'center';
@@ -239,6 +300,7 @@ function drawButton(text, x, y, buttonId, small = false) {
     ctx.fillText(text, 0, 0);
     ctx.restore();
 
+    // Hitbox (Achtung: width wird vor Transform gemessen, passt in deinen bisherigen Code)
     buttonHitboxes[buttonId] = {
         left: x,
         right: x + width,
@@ -257,7 +319,7 @@ function handleCanvasClick(e) {
             if (x >= box.left && x <= box.right && y >= box.top && y <= box.bottom) {
                 if (key === "newGame") startNewGame();
                 else if (key === "controls") { previousState = "menu"; gameState = "controls"; drawControls(); }
-                else if (key === "storyline") { previousState = "menu"; gameState = "storyline"; storylinePage=1; drawStoryline(); }
+                else if (key === "storyline") { previousState = "menu"; gameState = "storyline"; storylinePage = 1; drawStoryline(); }
                 else if (key === "datenschutz") { previousState = "menu"; gameState = "datenschutz"; drawDatenschutz(); }
                 else if (key === "impressum") { previousState = "menu"; gameState = "impressum"; drawImpressum(); }
                 return;
@@ -272,7 +334,7 @@ function handleCanvasClick(e) {
                 if (key === "resume") { gameState = "playing"; world.draw(); }
                 else if (key === "backToMenu") { gameState = "menu"; world = null; drawMenu(); }
                 else if (key === "controlsPause") { previousState = "pause"; gameState = "controls"; drawControls(); }
-                else if (key === "storylinePause") { previousState = "pause"; gameState = "storyline"; storylinePage=1; drawStoryline(); }
+                else if (key === "storylinePause") { previousState = "pause"; gameState = "storyline"; storylinePage = 1; drawStoryline(); }
                 else if (key === "datenschutzPause") { previousState = "pause"; gameState = "datenschutz"; drawDatenschutz(); }
                 else if (key === "impressumPause") { previousState = "pause"; gameState = "impressum"; drawImpressum(); }
                 return;
@@ -296,6 +358,31 @@ function handleCanvasClick(e) {
             if (previousState === "menu") drawMenu();
             else if (previousState === "pause") drawPauseMenu();
             return;
+        }
+    }
+
+    // Game Over State Buttons
+    if (gameState === "gameover") {
+        for (let key in buttonHitboxes) {
+            let box = buttonHitboxes[key];
+            if (x >= box.left && x <= box.right && y >= box.top && y <= box.bottom) {
+                if (key === "restart") {
+                    startNewGame();
+                } else if (key === "backToMenu") {
+                    gameState = "menu";
+                    world = null;
+                    drawMenu();
+                } else if (key === "datenschutzGameOver") {
+                    previousState = "gameover";
+                    gameState = "datenschutz";
+                    drawDatenschutz();
+                } else if (key === "impressumGameOver") {
+                    previousState = "gameover";
+                    gameState = "impressum";
+                    drawImpressum();
+                }
+                return;
+            }
         }
     }
 }
