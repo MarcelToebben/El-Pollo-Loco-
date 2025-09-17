@@ -14,8 +14,8 @@ class ThrownBottle extends MovableObject {
         this.width = 40;
         this.height = 60;
         this.speedX = 10 * direction; 
-        this.speedY = 20;
-        this.gravity = 0.7;            
+        this.speedY = 50;
+        this.gravity = 1.2;            
         this.rotation = 0;
         this.hit = false;
 

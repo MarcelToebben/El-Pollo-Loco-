@@ -8,30 +8,30 @@ class StatusBars {
 
     loadImages() {
         this.coinBarImgs = [
-            'img/statusbars/statusbars_statusbar/statusbar_coin/statusbar_coin_blue/statusbar_coin_blue_0.png',
-            'img/statusbars/statusbars_statusbar/statusbar_coin/statusbar_coin_blue/statusbar_coin_blue_20.png',
-            'img/statusbars/statusbars_statusbar/statusbar_coin/statusbar_coin_blue/statusbar_coin_blue_40.png',
-            'img/statusbars/statusbars_statusbar/statusbar_coin/statusbar_coin_blue/statusbar_coin_blue_60.png',
-            'img/statusbars/statusbars_statusbar/statusbar_coin/statusbar_coin_blue/statusbar_coin_blue_80.png',
-            'img/statusbars/statusbars_statusbar/statusbar_coin/statusbar_coin_blue/statusbar_coin_blue_100.png'
+            'img/statusbars/statusbars_statusbar/statusbar_coin/statusbar_coin_green/statusbar_coin_green_0.png',
+            'img/statusbars/statusbars_statusbar/statusbar_coin/statusbar_coin_green/statusbar_coin_green_20.png',
+            'img/statusbars/statusbars_statusbar/statusbar_coin/statusbar_coin_green/statusbar_coin_green_40.png',
+            'img/statusbars/statusbars_statusbar/statusbar_coin/statusbar_coin_green/statusbar_coin_green_60.png',
+            'img/statusbars/statusbars_statusbar/statusbar_coin/statusbar_coin_green/statusbar_coin_green_80.png',
+            'img/statusbars/statusbars_statusbar/statusbar_coin/statusbar_coin_green/statusbar_coin_green_100.png'
         ].map(src => this.loadImage(src));
 
         this.bottleBarImgs = [
-            'img/statusbars/statusbars_statusbar/statusbar_bottle/statusbar_bottle_blue/statusbar_bottle_blue_0.png',
-            'img/statusbars/statusbars_statusbar/statusbar_bottle/statusbar_bottle_blue/statusbar_bottle_blue_20.png',
-            'img/statusbars/statusbars_statusbar/statusbar_bottle/statusbar_bottle_blue/statusbar_bottle_blue_40.png',
-            'img/statusbars/statusbars_statusbar/statusbar_bottle/statusbar_bottle_blue/statusbar_bottle_blue_60.png',
-            'img/statusbars/statusbars_statusbar/statusbar_bottle/statusbar_bottle_blue/statusbar_bottle_blue_80.png',
-            'img/statusbars/statusbars_statusbar/statusbar_bottle/statusbar_bottle_blue/statusbar_bottle_blue_100.png'
+            'img/statusbars/statusbars_statusbar/statusbar_bottle/statusbar_bottle_green/statusbar_bottle_green_0.png',
+            'img/statusbars/statusbars_statusbar/statusbar_bottle/statusbar_bottle_green/statusbar_bottle_green_20.png',
+            'img/statusbars/statusbars_statusbar/statusbar_bottle/statusbar_bottle_green/statusbar_bottle_green_40.png',
+            'img/statusbars/statusbars_statusbar/statusbar_bottle/statusbar_bottle_green/statusbar_bottle_green_60.png',
+            'img/statusbars/statusbars_statusbar/statusbar_bottle/statusbar_bottle_green/statusbar_bottle_green_80.png',
+            'img/statusbars/statusbars_statusbar/statusbar_bottle/statusbar_bottle_green/statusbar_bottle_green_100.png'
         ].map(src => this.loadImage(src));
 
         this.lifeBarImgs = [
-            'img/statusbars/statusbars_statusbar/statusbar_health/statusbar_health_blue/statusbar_health_blue_0.png',
-            'img/statusbars/statusbars_statusbar/statusbar_health/statusbar_health_blue/statusbar_health_blue_20.png',
-            'img/statusbars/statusbars_statusbar/statusbar_health/statusbar_health_blue/statusbar_health_blue_40.png',
-            'img/statusbars/statusbars_statusbar/statusbar_health/statusbar_health_blue/statusbar_health_blue_60.png',
-            'img/statusbars/statusbars_statusbar/statusbar_health/statusbar_health_blue/statusbar_health_blue_80.png',
-            'img/statusbars/statusbars_statusbar/statusbar_health/statusbar_health_blue/statusbar_health_blue_100.png'
+            'img/statusbars/statusbars_statusbar/statusbar_health/statusbar_health_green/statusbar_health_green_0.png',
+            'img/statusbars/statusbars_statusbar/statusbar_health/statusbar_health_green/statusbar_health_green_20.png',
+            'img/statusbars/statusbars_statusbar/statusbar_health/statusbar_health_green/statusbar_health_green_40.png',
+            'img/statusbars/statusbars_statusbar/statusbar_health/statusbar_health_green/statusbar_health_green_60.png',
+            'img/statusbars/statusbars_statusbar/statusbar_health/statusbar_health_green/statusbar_health_green_80.png',
+            'img/statusbars/statusbars_statusbar/statusbar_health/statusbar_health_green/statusbar_health_green_100.png'
         ].map(src => this.loadImage(src));
     }
 
