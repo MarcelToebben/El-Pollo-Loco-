@@ -1,5 +1,3 @@
-// games.js (komplett, überarbeitet)
-// ---------------------------------
 let canvas;
 let ctx;
 let world;
@@ -15,8 +13,8 @@ startImage.src = 'img/intro_outro_screens/intro_outro_screens_start/startscreen_
 let gameOverBackground = new Image();
 gameOverBackground.src = 'img/background/el_pollo_loco_gameover_menu_background.png';
 
-let gameState = "startscreen"; // startscreen, menu, playing, pause, controls, storyline, datenschutz, impressum, gameover
-let storylinePage = 1; // <-- Storyline Seitenzähler
+let gameState = "startscreen"; 
+let storylinePage = 1; 
 let buttonHitboxes = {};
 let previousState = "menu";
 
@@ -26,20 +24,13 @@ let buttonPositions = {
     storyline: { x: 575, y: 370 },
     restart: { x: 174, y: 156 },
     backToMenu: { x: 575, y: 370 },
-
 };
 
-// Layout-Konfiguration für Game Over: ändere diese Werte frei
 let gameOverLayout = {
-    // Wenn headlineX === null => zentriert wie andere Menüs (canvas.width / 2 - 68)
-    headlineX: null,
-    headlineY: 100, // y-Position der "Game Over"-Überschrift
-
-    // Buttons: frei platzierbar
-    restartButton: { x: 210, y: 300 },
-    backToMenuButton: { x: 185, y: 360 },
-
-    // kleine links (optional, wie bei Hauptmenü)
+    headlineX: null,       // null = mittig
+    headlineY: 50, 
+    restartButton: { x: 465, y: 120 },
+    backToMenuButton: { x: 185, y: 460 },
     showFooterLinks: true,
     footerDatenschutz: { x: 20, yFromBottom: 30, small: true },
     footerImpressum: { xFromRight: 120, yFromBottom: 30, small: true }
@@ -49,10 +40,8 @@ function init() {
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
 
-    // Startbildschirm zeichnen
     drawStartScreen();
 
-    // Events
     document.addEventListener('keydown', startGameOnce);
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
@@ -61,7 +50,6 @@ function init() {
     canvas.addEventListener('mousemove', handleMouseMove);
 }
 
-// Falls du init beim Laden automatisch aufrufen willst:
 window.addEventListener('load', init);
 
 let blink = true;
@@ -241,30 +229,40 @@ function drawPauseMenu() {
 function drawGameOver() {
     buttonHitboxes = {};
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Hintergrund zeichnen (wie andere Menüs)
     ctx.drawImage(gameOverBackground, 0, 0, canvas.width, canvas.height);
 
-    // Überschrift "Game Over" exakt wie andere Menüs (gleiches Styling)
+    // Headline frei positionierbar:
+    const headlineX = (gameOverLayout.headlineX === null)
+        ? canvas.width / 2
+        : gameOverLayout.headlineX;
+    const headlineY = gameOverLayout.headlineY;
     ctx.font = '48px sancreek';
     ctx.textAlign = 'center';
     ctx.lineWidth = 4;
     ctx.strokeStyle = 'white';
-
-    const headlineX = (gameOverLayout.headlineX === null) ? (canvas.width / 2 - 68) : gameOverLayout.headlineX;
-    const headlineY = gameOverLayout.headlineY;
     ctx.strokeText('Game Over', headlineX, headlineY);
     ctx.fillStyle = 'black';
     ctx.fillText('Game Over', headlineX, headlineY);
 
-    // Buttons mit exakt derselben drawButton-Funktion (gleiche Optik wie Hauptmenü/Pause)
-    drawButton('Nochmal spielen', buttonPositions.newGame.x, buttonPositions.newGame.y, "restart");
-    drawButton('Zurück ins Hauptmenü', buttonPositions.newGame.x, buttonPositions.newGame.y, "backToMenu");
+    // Buttons frei positionierbar:
+    drawButton('Nochmal spielen',
+        gameOverLayout.restartButton.x,
+        gameOverLayout.restartButton.y,
+        "restart");
 
-    // Footer Links (optional, wie Hauptmenü)
+    drawButton('Zurück ins Hauptmenü',
+        gameOverLayout.backToMenuButton.x,
+        gameOverLayout.backToMenuButton.y,
+        "backToMenu");
+
     if (gameOverLayout.showFooterLinks) {
-        drawButton('Datenschutz', gameOverLayout.footerDatenschutz.x, canvas.height - gameOverLayout.footerDatenschutz.yFromBottom, "datenschutzGameOver", true);
-        drawButton('Impressum', canvas.width - gameOverLayout.footerImpressum.xFromRight, canvas.height - gameOverLayout.footerImpressum.yFromBottom, "impressumGameOver", true);
+        drawButton('Datenschutz', gameOverLayout.footerDatenschutz.x,
+            canvas.height - gameOverLayout.footerDatenschutz.yFromBottom,
+            "datenschutzGameOver", true);
+
+        drawButton('Impressum', canvas.width - gameOverLayout.footerImpressum.xFromRight,
+            canvas.height - gameOverLayout.footerImpressum.yFromBottom,
+            "impressumGameOver", true);
     }
 
     if (gameState === "gameover") requestAnimationFrame(drawGameOver);
@@ -300,7 +298,6 @@ function drawButton(text, x, y, buttonId, small = false) {
     ctx.fillText(text, 0, 0);
     ctx.restore();
 
-    // Hitbox (Achtung: width wird vor Transform gemessen, passt in deinen bisherigen Code)
     buttonHitboxes[buttonId] = {
         left: x,
         right: x + width,
@@ -357,11 +354,11 @@ function handleCanvasClick(e) {
             gameState = previousState;
             if (previousState === "menu") drawMenu();
             else if (previousState === "pause") drawPauseMenu();
+            else if (previousState === "gameover") drawGameOver();
             return;
         }
     }
 
-    // Game Over State Buttons
     if (gameState === "gameover") {
         for (let key in buttonHitboxes) {
             let box = buttonHitboxes[key];
