@@ -33,6 +33,15 @@ class StatusBars {
             'img/statusbars/statusbars_statusbar/statusbar_health/statusbar_health_green/statusbar_health_green_80.png',
             'img/statusbars/statusbars_statusbar/statusbar_health/statusbar_health_green/statusbar_health_green_100.png'
         ].map(src => this.loadImage(src));
+
+        this.bossLifeBarImgs = [
+            'img/statusbars/statusbar_endboss/statusbar_endboss_green/statusbar_endboss_green_0.png',
+            'img/statusbars/statusbar_endboss/statusbar_endboss_green/statusbar_endboss_green_20.png',
+            'img/statusbars/statusbar_endboss/statusbar_endboss_green/statusbar_endboss_green_40.png',
+            'img/statusbars/statusbar_endboss/statusbar_endboss_green/statusbar_endboss_green_60.png',
+            'img/statusbars/statusbar_endboss/statusbar_endboss_green/statusbar_endboss_green_80.png',
+            'img/statusbars/statusbar_endboss/statusbar_endboss_green/statusbar_endboss_green_100.png'
+        ].map(src => this.loadImage(src));
     }
 
     loadImage(src) {
@@ -41,22 +50,27 @@ class StatusBars {
         return img;
     }
 
- draw() {
-    const ctx = this.ctx;
-    const padding = 10;
-    const barWidth = 200;
-    const barHeight = 30;
-    const spacing = 10;
+    draw() {
+        const ctx = this.ctx;
+        const padding = 0;
+        const barWidth = 200;
+        const barHeight = 40;
+        const spacing = 0;
 
-    const char = this.world.character;
+        const char = this.world.character;
+        const boss = this.world.level.endboss; 
 
-    const coinIndex = Math.min(this.coinBarImgs.length - 1, Math.floor(char.coins / char.maxCoins * (this.coinBarImgs.length - 1)));
-    const bottleIndex = Math.min(this.bottleBarImgs.length - 1, Math.floor(char.bottles / char.maxBottles * (this.bottleBarImgs.length - 1)));
-    const lifeIndex = Math.min(this.lifeBarImgs.length - 1, Math.floor(char.energy / char.maxLife * (this.lifeBarImgs.length - 1)));
+        const coinIndex = Math.min(this.coinBarImgs.length - 1, Math.floor(char.coins / char.maxCoins * (this.coinBarImgs.length - 1)));
+        const bottleIndex = Math.min(this.bottleBarImgs.length - 1, Math.floor(char.bottles / char.maxBottles * (this.bottleBarImgs.length - 1)));
+        const lifeIndex = Math.min(this.lifeBarImgs.length - 1, Math.floor(char.energy / char.maxLife * (this.lifeBarImgs.length - 1)));
 
-    ctx.drawImage(this.coinBarImgs[coinIndex], padding, padding, barWidth, barHeight);
-    ctx.drawImage(this.bottleBarImgs[bottleIndex], padding, padding + barHeight + spacing, barWidth, barHeight);
-    ctx.drawImage(this.lifeBarImgs[lifeIndex], padding, padding + (barHeight + spacing) * 2, barWidth, barHeight);
-}
+        ctx.drawImage(this.coinBarImgs[coinIndex], padding, padding, barWidth, barHeight);
+        ctx.drawImage(this.bottleBarImgs[bottleIndex], padding, padding + barHeight + spacing, barWidth, barHeight);
+        ctx.drawImage(this.lifeBarImgs[lifeIndex], padding, padding + (barHeight + spacing) * 2, barWidth, barHeight);
 
+        if (boss && boss.hp > 0) {
+            const bossIndex = Math.min(this.bossLifeBarImgs.length - 1, Math.floor(boss.hp / boss.maxHp * (this.bossLifeBarImgs.length - 1)));
+            ctx.drawImage(this.bossLifeBarImgs[bossIndex], padding, padding + (barHeight + spacing) * 3, barWidth, barHeight);
+        }
+    }
 }

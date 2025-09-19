@@ -6,6 +6,9 @@ class World {
     keyboard;
     bottleRespawnInterval = 500;
     maxGroundBottles = 5;
+    coinRespawnInterval = 500; 
+    maxGroundCoins = 5; 
+
 
     camera_x = 0;
     collisionInterval = null;
@@ -22,16 +25,17 @@ class World {
         this.start();
     }
 
+
     start() {
-        // Collisions-Loop starten
         this.startCollisionCheck();
 
-        // Bottle-Respawn starten
         setInterval(() => this.respawnBottles(), this.bottleRespawnInterval);
 
-        // Spiel-Zeichnung starten
+        setInterval(() => this.respawnCoins(), this.coinRespawnInterval);
+
         this.draw();
     }
+
 
     setWorld() {
         this.character.world = this;
@@ -44,7 +48,7 @@ class World {
         if (this.collisionInterval) clearInterval(this.collisionInterval);
 
         this.collisionInterval = setInterval(() => {
-            if (gameState !== "playing") return; // keine Kollisionen prüfen wenn Pause
+            if (gameState !== "playing") return; 
 
             this.level.enemies.forEach((enemy) => {
                 if (this.character.isColliding(enemy)) {
@@ -69,7 +73,6 @@ class World {
                 }
             });
 
-            // Coins sammeln
             this.level.coins.forEach(coin => {
                 if (!coin.collected && this.character.isColliding(coin)) {
                     coin.collected = true;
@@ -77,7 +80,6 @@ class World {
                 }
             });
 
-            // Flaschen sammeln
             this.level.bottles.forEach(bottle => {
                 if (!bottle.collected && this.character.isColliding(bottle)) {
                     if (this.character.bottles < this.character.maxBottles) {
@@ -87,7 +89,6 @@ class World {
                 }
             });
 
-            // Geworfene Flaschen gegen Gegner prüfen
             this.character.thrownBottles.forEach((bottle, bottleIndex) => {
                 this.level.enemies.forEach((enemy) => {
                     if (!bottle.hit && this.character.isColliding.call(bottle, enemy)) {
@@ -122,7 +123,7 @@ class World {
     }
 
     respawnBottles() {
-        if (gameState !== "playing") return; // keine neuen Flaschen im Pause Menü
+        if (gameState !== "playing") return; 
 
         const groundBottles = this.level.bottles.filter(b => !b.collected);
 
@@ -137,8 +138,29 @@ class World {
         }
     }
 
+respawnCoins() {
+    if (gameState !== "playing") return;
+
+    const groundCoins = this.level.coins.filter(c => !c.collected);
+
+    if (groundCoins.length === 0) {
+        for (let i = 0; i < 10; i++) {
+            const x = 500 + i * 200 + Math.random() * 300; 
+            const y = 100 + Math.random() * 150;
+            const newCoin = new Coin(x, y);
+            newCoin.collected = false;
+            this.level.coins.push(newCoin);
+        }
+
+        console.log("Coins respawned in the air!");
+    }
+}
+
+
+
+
     draw() {
-        if (gameState !== "playing") return; // nichts zeichnen, wenn Pause oder Menü
+        if (gameState !== "playing") return; 
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.translate(this.camera_x, 0);
@@ -172,7 +194,6 @@ class World {
 
         this.statusBars.draw();
 
-        // Nur neues Frame starten, wenn das Spiel läuft
         if (gameState === "playing") {
             this.animationFrameId = requestAnimationFrame(() => this.draw());
         }

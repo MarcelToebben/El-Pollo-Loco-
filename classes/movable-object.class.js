@@ -1,4 +1,3 @@
-// movable.js
 class MovableObject {
     x = 120;
     y = 280;
@@ -23,7 +22,6 @@ class MovableObject {
     }
 
     isAboveGround() {
-        // Für dein Spiel offenbar die Höhe < 150 als "in der Luft"
         return this.y < 150;
     }
 
@@ -50,7 +48,6 @@ class MovableObject {
         }
     }
 
-    // Korrekte AABB-Kollision (rechteckbasiert)
     isColliding(mo) {
         return this.x + this.width > mo.x &&
                this.y + this.height > mo.y &&

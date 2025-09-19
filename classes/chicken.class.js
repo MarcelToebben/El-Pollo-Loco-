@@ -45,7 +45,6 @@ class Chicken extends MovableObject {
         this.isDead = true;
         this.canMove = false;
         this.speed = 0;
-
         this.loadImage(this.imagesDead[0]);
     }
 }

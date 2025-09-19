@@ -1,12 +1,9 @@
-// character.js
 class Character extends MovableObject {
-    // Position / Größe / Physik
     y = 150;
     height = 300;
     width = 120;
     speed = 6;
 
-    // Gameplay
     isHurt = false;
     isDead = false;
     deathAnimationDone = false;
@@ -16,14 +13,13 @@ class Character extends MovableObject {
     maxCoins = 10;
     bottles = 0;
     maxBottles = 10;
-    energy = 100;
-    maxLife = 100;
+    energy = 125;
+    maxLife = 125;
 
     thrownBottles = [];
     throwCooldown = 500;
     lastThrowTime = 0;
 
-    // Collision offsets
     collisionOffset = {
         top: 150,
         bottom: 20,
@@ -31,19 +27,16 @@ class Character extends MovableObject {
         right: 20
     };
 
-    // Animation timers / states
     lastMoveTime = Date.now();
     walkingAnimationSpeed = 80;
     jumpingAnimationSpeed = 50;
     idleANimationSpeed = 250;
     idleStage = 0;
 
-    // Opacity for fade
     opacity = 1;
-    deathYSpeed = -1; // nach oben bewegen
+    deathYSpeed = -1; 
     deathFadeSpeed = 0.01;
 
-    // Bild-Arrays (wie vorher)
     imagesWalking = [
         'img/character_pepe/character_pepe_walk/character_pepe_walk_1.png',
         'img/character_pepe/character_pepe_walk/character_pepe_walk_2.png',
@@ -111,7 +104,6 @@ class Character extends MovableObject {
 
     constructor() {
         super().loadImage('img/character_pepe/character_pepe_walk/character_pepe_walk_1.png');
-        // alle benötigten Bilder in den Cache laden
         this.loadImages(this.imagesWalking);
         this.loadImages(this.imagesJumping);
         this.loadImages(this.imagesIdleNormal);
@@ -151,14 +143,38 @@ class Character extends MovableObject {
         }
     }
 
-    collectCoin() {
-        if (this.coins < this.maxCoins) {
-            this.coins++;
-        }
+ collectCoin() {
+    if (this.coins < this.maxCoins) {
+        this.coins++;
     }
 
+    if (this.coins >= this.maxCoins) {
+        let coinUsed = false;
+
+        if (this.energy < this.maxLife) {
+            this.energy = this.maxLife;
+            coinUsed = true;
+            console.log("Coin Bar voll: Leben aufgefüllt!");
+        }
+        else if (this.bottles < this.maxBottles) {
+            this.bottles = this.maxBottles;
+            coinUsed = true;
+            console.log("Coin Bar voll: Bottle Bar aufgefüllt!");
+        }
+
+        if (coinUsed) {
+            this.coins = 0;
+
+            if (this.world) this.world.statusBars.showCoinPowerUpAnimation();
+        } else {
+            console.log("Coin Bar bleibt voll, da Leben und Bottles bereits voll sind.");
+        }
+    }
+}
+
+
+
     hit() {
-        // Schaden nur, wenn nicht bereits im Hurt- oder Dead-Zustand
         if (!this.isHurt && !this.isDead) {
             this.isHurt = true;
             this.energy -= 10;
@@ -167,12 +183,10 @@ class Character extends MovableObject {
             this.playAnimation(this.imagesHit, 150);
 
             if (this.energy <= 0) {
-                // sofortiger Tod
                 this.die();
                 return;
             }
 
-            // nach Hurt-Zeit wieder normal werden
             setTimeout(() => {
                 this.isHurt = false;
                 this.currentImage = 0;
@@ -180,10 +194,9 @@ class Character extends MovableObject {
         }
     }
 
-    // Robustere Variante von playAnimation mit Zeit-Tracking pro Bild-Array
     playAnimation(images, speed = 100) {
         if (!this._lastAnimationTimes) this._lastAnimationTimes = {};
-        const key = images.join('|'); // einfacher Schlüssel
+        const key = images.join('|'); 
         if (!this._lastAnimationTimes[key]) this._lastAnimationTimes[key] = Date.now();
 
         if (Date.now() - this._lastAnimationTimes[key] > speed) {
@@ -199,7 +212,6 @@ class Character extends MovableObject {
         this.energy = 0;
         this.currentImage = 0;
 
-        // Durchspiele die Sterbe-Frames nacheinander
         let frame = 0;
         const deathInterval = setInterval(() => {
             if (frame < this.imagesDead.length) {
@@ -214,27 +226,21 @@ class Character extends MovableObject {
     }
 
     animate() {
-        // Haupt-Loop für Character-Logik (wird vom Charakter intern getaktet)
         setInterval(() => {
-            // Wenn tot: Death-Flow (erst Anim, dann schweben+fade, dann GameOver)
             if (this.isDead) {
                 if (this.deathAnimationDone) {
-                    // nach oben schweben und langsam ausblenden
                     this.y += this.deathYSpeed;
                     this.opacity -= this.deathFadeSpeed;
 
-                    // wenn komplett unsichtbar geworden: Game Over auslösen (einmalig)
                     if (this.opacity <= 0 && !this.gameOverTriggered) {
                         this.gameOverTriggered = true;
                         gameState = "gameover";
-                        // starte das GameOver-Rendering
                         drawGameOver();
                     }
                 }
-                return; // keine weitere Logik, wenn dead
+                return; 
             }
 
-            // Steuerung
             if (this.world && this.world.keyboard) {
                 if (this.world.keyboard.right && this.x < this.world.level.level_end_x) {
                     this.moveRight();
@@ -258,10 +264,8 @@ class Character extends MovableObject {
                 }
             }
 
-            // Kamera (wie vorher)
             if (this.world) this.world.camera_x = -this.x + 100;
 
-            // Animationen priorisiert abarbeiten
             if (this.isHurt) {
                 this.playAnimation(this.imagesHit, 300);
                 return;
@@ -292,7 +296,6 @@ class Character extends MovableObject {
         }, 1000 / 60);
     }
 
-    // überschreibe draw, damit wir bei Tod die globale Alpha setzen können
     draw(ctx) {
         if (this.isDead) {
             ctx.save();

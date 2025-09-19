@@ -4,6 +4,7 @@ class SmallChicken extends MovableObject {
     width = 30;
     canMove = false;
     isDead = false;
+
     imagesWalking = [
         'img/enemies_chicken/chicken_small/chicken_small_walk/chicken_small_walk_1.png',
         'img/enemies_chicken/chicken_small/chicken_small_walk/chicken_small_walk_2.png',
@@ -44,7 +45,6 @@ class SmallChicken extends MovableObject {
         this.isDead = true;
         this.canMove = false;
         this.speed = 0;
-
         this.loadImage(this.imagesDead[0]);
     }
 }
